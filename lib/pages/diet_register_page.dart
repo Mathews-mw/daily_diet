@@ -1,15 +1,20 @@
+import 'package:daily_diet/models/meal.dart';
 import 'package:daily_diet/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DietRegisterPage extends StatefulWidget {
-  const DietRegisterPage({super.key});
+  final void Function(Meal meal) onSubmitForm;
+
+  const DietRegisterPage({super.key, required this.onSubmitForm});
 
   @override
   State<DietRegisterPage> createState() => _DietRegisterPageState();
 }
 
 class _DietRegisterPageState extends State<DietRegisterPage> {
+  final mealNameController = TextEditingController();
+  final mealDescriptionController = TextEditingController();
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
   bool _isDiet = false;
@@ -56,6 +61,50 @@ class _DietRegisterPageState extends State<DietRegisterPage> {
     });
   }
 
+  _handleCreateMealForm() {
+    final mealName = mealNameController.text;
+    final mealDescription = mealDescriptionController.text;
+    final mealRegisterAt = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+
+    if (mealName.isEmpty ||
+        mealDescription.isEmpty ||
+        (_isNotDiet == false && _isDiet == false)) {
+      return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Preencha todos os campos do formulário!'),
+        showCloseIcon: true,
+        width: 400,
+        duration: Duration(seconds: 10),
+        behavior: SnackBarBehavior.floating,
+      ));
+    }
+
+    final newMeal = Meal(
+      name: mealName,
+      description: mealDescription,
+      registerAt: mealRegisterAt,
+      isDiet: _isDiet,
+    );
+
+    widget.onSubmitForm(newMeal);
+
+    Navigator.of(context).pop();
+  }
+
+  SnackBar invalidFormSnackBar() {
+    return const SnackBar(
+      content: Text('Preencha todos os campos do formulário'),
+      showCloseIcon: true,
+      width: 400,
+      duration: Duration(seconds: 10),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,9 +140,10 @@ class _DietRegisterPageState extends State<DietRegisterPage> {
                           children: [
                             const SizedBox(height: 20),
                             TextField(
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 labelText: 'Nome',
                               ),
+                              controller: mealNameController,
                             ),
                             const SizedBox(height: 20),
                             TextField(
@@ -102,6 +152,7 @@ class _DietRegisterPageState extends State<DietRegisterPage> {
                               decoration: const InputDecoration(
                                 labelText: 'Descrição',
                               ),
+                              controller: mealDescriptionController,
                             ),
                             const SizedBox(height: 20),
                             Row(
@@ -233,7 +284,7 @@ class _DietRegisterPageState extends State<DietRegisterPage> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () => {},
+                        onPressed: _handleCreateMealForm,
                         child: const Text('Cadastrar refeição'),
                       ),
                     ),
