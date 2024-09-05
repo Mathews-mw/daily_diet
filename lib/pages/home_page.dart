@@ -12,22 +12,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final bool _isDiet = true;
-
   final List<Meal> meals = [
     Meal(
         name: 'X-tudo',
-        description: 'xywnlctcoycxvwrt',
+        description:
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum diam vitae sem varius porttitor. Proin vitae massa erat. Maecenas a purus a quam laoreet imperdiet eu in augue.',
         registerAt: DateTime.now(),
         isDiet: false),
     Meal(
         name: 'Salada',
-        description: 'xywnlctcoycxvwrt',
+        description:
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum diam vitae sem varius porttitor. Proin vitae massa erat. Maecenas a purus a quam laoreet imperdiet eu in augue.',
         registerAt: DateTime.now(),
         isDiet: true),
     Meal(
         name: 'Bolo de chocolate',
-        description: 'xywnlctcoycxvwrt',
+        description:
+            'Melhor bolo de chocolate da cidade do Sonho de bolo. Contém uma ignorância absurda de cobertura de chocolate.',
         registerAt: DateTime.now(),
         isDiet: false),
     // Meal(
@@ -73,22 +74,45 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  _deleteMeal(Meal meal) {
+    setState(() {
+      meals.removeWhere((item) => item.id == meal.id);
+    });
+  }
+
   _navigateToDietRegisterPage(BuildContext context) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => DietRegisterPage(onSubmitForm: _registerNewMeal),
-        ));
+      context,
+      MaterialPageRoute(
+        builder: (_) => DietRegisterPage(onSubmitForm: _registerNewMeal),
+      ),
+    );
+  }
+
+  double _calculateAmountWithinDiet(List<Meal> meals) {
+    final amountMeals = meals.length;
+
+    final amountWithinDiet =
+        meals.where((meal) => meal.isDiet == true).toList().length;
+
+    final percentageMealsWithinDiet = ((amountWithinDiet / amountMeals) * 100);
+
+    return percentageMealsWithinDiet;
   }
 
   @override
   Widget build(BuildContext context) {
+    var isWithinDiet = _calculateAmountWithinDiet(meals) >= 50.0;
+    var percentageDietMeals = _calculateAmountWithinDiet(meals);
+
     return Column(
       children: <Widget>[
         SizedBox(
           width: double.infinity,
           child: Card.filled(
-            color: _isDiet ? AppColors.baseGreenLight : AppColors.baseRedLight,
+            color: isWithinDiet
+                ? AppColors.baseGreenLight
+                : AppColors.baseRedLight,
             child: Padding(
               padding:
                   const EdgeInsets.only(top: 0, bottom: 10, left: 0, right: 0),
@@ -100,15 +124,22 @@ class _HomePageState extends State<HomePage> {
                       alignment: Alignment.centerRight,
                       child: IconButton(
                         icon: const Icon(Icons.north_east),
-                        color: AppColors.baseGreenDark,
+                        color: isWithinDiet
+                            ? AppColors.baseGreenDark
+                            : AppColors.baseRedDark,
                         onPressed: () {},
                       ),
                     ),
                   ),
-                  Text(
-                    '90,86%',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                  percentageDietMeals.isNaN
+                      ? Text(
+                          '0%',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        )
+                      : Text(
+                          '${percentageDietMeals.toStringAsFixed(2)}%',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                   const Text('das refeições dentro da dieta')
                 ],
               ),
@@ -131,7 +162,7 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (ctx, index) {
                 final meal = meals[index];
 
-                return MealItem(meal: meal);
+                return MealItem(meal: meal, onDeleteMeal: _deleteMeal);
               }),
         )
       ],

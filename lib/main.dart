@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:daily_diet/pages/home_page.dart';
 import 'package:daily_diet/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,11 @@ class DailyDietApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
+      ],
+      supportedLocales: const [Locale('pt', 'BR')],
       home: MainPage(),
       theme: theme.copyWith(
           colorScheme: theme.colorScheme
@@ -24,6 +31,14 @@ class DailyDietApp extends StatelessWidget {
                 fontSize: 16, color: AppColors.baseGray1),
             titleLarge: GoogleFonts.nunitoSans(
                 fontSize: 42,
+                fontWeight: FontWeight.bold,
+                color: AppColors.baseGray1),
+            titleMedium: GoogleFonts.nunitoSans(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.baseGray1),
+            titleSmall: GoogleFonts.nunitoSans(
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: AppColors.baseGray1),
             displayLarge: GoogleFonts.nunitoSans(),
