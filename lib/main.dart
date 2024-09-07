@@ -1,9 +1,10 @@
 import 'package:intl/intl.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:daily_diet/pages/home_page.dart';
-import 'package:daily_diet/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'package:daily_diet/pages/home_page.dart';
+import 'package:daily_diet/theme/colors/app_colors.dart';
 
 void main() {
   runApp(DailyDietApp());
@@ -77,21 +78,34 @@ class DailyDietApp extends StatelessWidget {
 class MainPage extends StatelessWidget {
   MainPage({super.key});
 
+  final appBar = AppBar(
+    backgroundColor: AppColors.baseWhite,
+    title: const Text(
+      'Daily Diet',
+      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+    ),
+    centerTitle: true,
+  );
+
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final statusBardHeight = mediaQuery.padding.top;
+    final appBarHeight = appBar.preferredSize.height;
+
+    final availableSize =
+        mediaQuery.size.height - appBarHeight - statusBardHeight;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Daily Diet',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: appBar,
       body: SafeArea(
           child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: HomePage(),
+        child: Container(
+          color: AppColors.baseWhite,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: HomePage(availableScreenSize: availableSize),
+          ),
         ),
       )),
     );

@@ -7,10 +7,12 @@ import 'package:daily_diet/theme/colors/app_colors.dart';
 class MealItem extends StatelessWidget {
   final Meal meal;
   final void Function(Meal meal) onDeleteMeal;
+  final void Function(Meal meal) onSubmitEditForm;
 
   const MealItem({
     super.key,
     required this.meal,
+    required this.onSubmitEditForm,
     required this.onDeleteMeal,
   });
 
@@ -21,6 +23,7 @@ class MealItem extends StatelessWidget {
           builder: (_) => MealDetailsPage(
             meal: meal,
             onDeleteMeal: onDeleteMeal,
+            onSubmitEditForm: onSubmitEditForm,
           ),
         ));
   }
@@ -28,6 +31,7 @@ class MealItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card.outlined(
+      color: AppColors.baseWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(6.0), // Define o raio das bordas
         side: const BorderSide(

@@ -1,4 +1,4 @@
-# daily_diet
+# Daily Diet
 
 A new Flutter project.
 

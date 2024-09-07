@@ -1,25 +1,64 @@
 import 'package:daily_diet/models/meal.dart';
-import 'package:daily_diet/pages/register_feedback_page.dart';
 import 'package:daily_diet/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class DietRegisterPage extends StatefulWidget {
-  final void Function(Meal meal) onSubmitForm;
+class EditMealPage extends StatefulWidget {
+  final Meal meal;
+  final void Function(Meal meal) onSubmitEditForm;
 
-  const DietRegisterPage({super.key, required this.onSubmitForm});
+  const EditMealPage({
+    super.key,
+    required this.meal,
+    required this.onSubmitEditForm,
+  });
 
   @override
-  State<DietRegisterPage> createState() => _DietRegisterPageState();
+  State<EditMealPage> createState() => _EditMealPage();
 }
 
-class _DietRegisterPageState extends State<DietRegisterPage> {
-  final mealNameController = TextEditingController();
-  final mealDescriptionController = TextEditingController();
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
+class _EditMealPage extends State<EditMealPage> {
+  late TextEditingController mealNameController;
+  late TextEditingController mealDescriptionController;
+  late DateTime selectedDate;
+  late TimeOfDay selectedTime;
   bool _isDiet = false;
   bool _isNotDiet = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    mealNameController = TextEditingController(text: widget.meal.name);
+    mealDescriptionController =
+        TextEditingController(text: widget.meal.description);
+
+    selectedDate = DateTime(
+      widget.meal.registerAt.year,
+      widget.meal.registerAt.month,
+      widget.meal.registerAt.day,
+    );
+
+    selectedTime = TimeOfDay(
+      hour: widget.meal.registerAt.hour,
+      minute: widget.meal.registerAt.minute,
+    );
+
+    if (widget.meal.isDiet) {
+      _isDiet = true;
+      _isNotDiet = false;
+    } else {
+      _isDiet = false;
+      _isNotDiet = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    mealNameController.dispose();
+    mealDescriptionController.dispose();
+    super.dispose();
+  }
 
   _showDatePicker(BuildContext context) {
     showDatePicker(
@@ -62,7 +101,7 @@ class _DietRegisterPageState extends State<DietRegisterPage> {
     });
   }
 
-  _handleCreateMealForm() {
+  _handleEditMealForm(Meal meal) {
     final mealName = mealNameController.text;
     final mealDescription = mealDescriptionController.text;
     final mealRegisterAt = DateTime(
@@ -85,21 +124,14 @@ class _DietRegisterPageState extends State<DietRegisterPage> {
       ));
     }
 
-    final newMeal = Meal(
-      name: mealName,
-      description: mealDescription,
-      registerAt: mealRegisterAt,
-      isDiet: _isDiet,
-    );
+    meal.name = mealName;
+    meal.description = mealDescription;
+    meal.registerAt = mealRegisterAt;
+    meal.isDiet = _isDiet;
 
-    widget.onSubmitForm(newMeal);
+    widget.onSubmitEditForm(meal);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => RegisterFeedbackPage(isDiet: _isDiet),
-      ),
-    );
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   SnackBar invalidFormSnackBar() {
@@ -290,8 +322,8 @@ class _DietRegisterPageState extends State<DietRegisterPage> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: _handleCreateMealForm,
-                        child: const Text('Cadastrar refeição'),
+                        onPressed: () => _handleEditMealForm(widget.meal),
+                        child: const Text('Salvar alterações'),
                       ),
                     ),
                   ],

@@ -1,76 +1,32 @@
 import 'package:daily_diet/components/meal_item.dart';
 import 'package:daily_diet/models/meal.dart';
 import 'package:daily_diet/pages/diet_register_page.dart';
+import 'package:daily_diet/pages/stats_page.dart';
 import 'package:daily_diet/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final double availableScreenSize;
+  const HomePage({super.key, required this.availableScreenSize});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Meal> meals = [
-    Meal(
-        name: 'X-tudo',
-        description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum diam vitae sem varius porttitor. Proin vitae massa erat. Maecenas a purus a quam laoreet imperdiet eu in augue.',
-        registerAt: DateTime.now(),
-        isDiet: false),
-    Meal(
-        name: 'Salada',
-        description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elementum diam vitae sem varius porttitor. Proin vitae massa erat. Maecenas a purus a quam laoreet imperdiet eu in augue.',
-        registerAt: DateTime.now(),
-        isDiet: true),
-    Meal(
-        name: 'Bolo de chocolate',
-        description:
-            'Melhor bolo de chocolate da cidade do Sonho de bolo. Contém uma ignorância absurda de cobertura de chocolate.',
-        registerAt: DateTime.now(),
-        isDiet: false),
-    // Meal(
-    //     name: 'Arroz com frango',
-    //     description: 'xywnlctcoycxvwrt',
-    //     registerAt: DateTime.now(),
-    //     isDiet: true),
-    // Meal(
-    //     name: 'Vitamina de Banana',
-    //     description: 'xywnlctcoycxvwrt',
-    //     registerAt: DateTime.now(),
-    //     isDiet: true),
-    // Meal(
-    //     name: 'X-tudo',
-    //     description: 'xywnlctcoycxvwrt',
-    //     registerAt: DateTime.now(),
-    //     isDiet: false),
-    // Meal(
-    //     name: 'Salada',
-    //     description: 'xywnlctcoycxvwrt',
-    //     registerAt: DateTime.now(),
-    //     isDiet: true),
-    // Meal(
-    //     name: 'Bolo de chocolate',
-    //     description: 'xywnlctcoycxvwrt',
-    //     registerAt: DateTime.now(),
-    //     isDiet: false),
-    // Meal(
-    //     name: 'Arroz com frango',
-    //     description: 'xywnlctcoycxvwrt',
-    //     registerAt: DateTime.now(),
-    //     isDiet: true),
-    // Meal(
-    //     name: 'Vitamina de Banana',
-    //     description: 'xywnlctcoycxvwrt',
-    //     registerAt: DateTime.now(),
-    //     isDiet: true),
-  ];
+  final List<Meal> meals = [];
 
   _registerNewMeal(Meal meal) {
     setState(() {
       meals.add(meal);
+    });
+  }
+
+  _editMeal(Meal meal) {
+    var currentMealIndex = meals.indexWhere((item) => item.id == meal.id);
+
+    setState(() {
+      meals[currentMealIndex] = meal;
     });
   }
 
@@ -85,6 +41,18 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(
         builder: (_) => DietRegisterPage(onSubmitForm: _registerNewMeal),
+      ),
+    );
+  }
+
+  _navigateToStatsPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => StatsPage(
+          mealsList: meals,
+          percentageMealsWithinDiet: _calculateAmountWithinDiet(meals),
+        ),
       ),
     );
   }
@@ -104,6 +72,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var isWithinDiet = _calculateAmountWithinDiet(meals) >= 50.0;
     var percentageDietMeals = _calculateAmountWithinDiet(meals);
+
+    debugPrint('Tamanho da tela ${widget.availableScreenSize}');
 
     return Column(
       children: <Widget>[
@@ -127,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                         color: isWithinDiet
                             ? AppColors.baseGreenDark
                             : AppColors.baseRedDark,
-                        onPressed: () {},
+                        onPressed: () => _navigateToStatsPage(context),
                       ),
                     ),
                   ),
@@ -146,7 +116,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
@@ -155,16 +125,21 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.add)),
         ),
         const SizedBox(height: 20),
-        Container(
-          height: 540,
+        SizedBox(
+          height: widget.availableScreenSize * 0.6,
           child: ListView.builder(
-              itemCount: meals.length,
-              itemBuilder: (ctx, index) {
-                final meal = meals[index];
+            itemCount: meals.length,
+            itemBuilder: (ctx, index) {
+              final meal = meals[index];
 
-                return MealItem(meal: meal, onDeleteMeal: _deleteMeal);
-              }),
-        )
+              return MealItem(
+                meal: meal,
+                onDeleteMeal: _deleteMeal,
+                onSubmitEditForm: _editMeal,
+              );
+            },
+          ),
+        ),
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:daily_diet/pages/edit_meal_page.dart';
 import 'package:daily_diet/pages/home_page.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +8,13 @@ import 'package:daily_diet/theme/colors/app_colors.dart';
 class MealDetailsPage extends StatelessWidget {
   final Meal meal;
   final void Function(Meal meal) onDeleteMeal;
+  final void Function(Meal meal) onSubmitEditForm;
 
   const MealDetailsPage({
     super.key,
     required this.meal,
     required this.onDeleteMeal,
+    required this.onSubmitEditForm,
   });
 
   _showDeleteMealDialog(BuildContext context) {
@@ -46,6 +49,18 @@ class MealDetailsPage extends StatelessWidget {
     );
   }
 
+  _navigateToEditMealPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditMealPage(
+          meal: meal,
+          onSubmitEditForm: onSubmitEditForm,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +78,6 @@ class MealDetailsPage extends StatelessWidget {
           color:
               meal.isDiet ? AppColors.baseGreenLight : AppColors.baseRedLight,
           height: double.infinity,
-          // width: double.infinity,
           child: ClipRRect(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(16.0),
@@ -79,6 +93,7 @@ class MealDetailsPage extends StatelessWidget {
                   bottom: 12,
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
@@ -141,7 +156,7 @@ class MealDetailsPage extends StatelessWidget {
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton.icon(
-                              onPressed: () => {},
+                              onPressed: () => _navigateToEditMealPage(context),
                               label: const Text('Editar refeição'),
                               icon: const Icon(Icons.edit)),
                         ),
